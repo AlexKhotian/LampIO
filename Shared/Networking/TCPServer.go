@@ -1,6 +1,8 @@
 package Networking
 
 import (
+	"bufio"
+	"fmt"
 	"log"
 	"net"
 	"strconv"
@@ -36,6 +38,9 @@ func (server *TCPServer) Run() bool {
 }
 
 func (server *TCPServer) handleConnection(conn *net.Conn) {
+	message, _ := bufio.NewReader(*conn).ReadString('\n')
+	// output message received
+	fmt.Print(string(message))
 }
 
 // Shutdown server and clean up resources
