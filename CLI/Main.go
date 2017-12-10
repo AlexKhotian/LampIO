@@ -3,6 +3,7 @@ package main
 import (
 	"LampIO/Client"
 	"LampIO/Server"
+
 	"flag"
 	"log"
 )
@@ -13,8 +14,9 @@ func main() {
 	flag.Parse()
 	log.Println(*isClient, *isServer)
 	if *isClient && *isServer {
-		log.Fatalln("Cannot creat client abd server at same time")
+		log.Fatalln("Cannot creat client and server at same time")
 	}
+
 	if *isClient {
 		Client.StartClient()
 	}

@@ -13,4 +13,5 @@ type NewModuleCommand struct {
 
 type ModuleDataCommand struct {
 	UUID Helper.UUID `json:"UUID"`
+	
 }
