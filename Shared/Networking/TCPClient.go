@@ -1,6 +1,7 @@
 package Networking
 
 import (
+	"crypto/tls"
 	"log"
 	"net"
 	"strconv"
@@ -18,7 +19,14 @@ func CreateTCPClient(port int32, address string) *TCPClient {
 }
 
 func (client *TCPClient) Run() bool {
-	conn, err := net.Dial("tcp", client.address+":"+strconv.Itoa(int(client.port)))
+	cert, err := tls.LoadX509KeyPair("../certs/client.pem", "../certs/client.key")
+	if err != nil {
+		log.Println("Failed to load certs", err)
+		return false
+	}
+	config := tls.Config{Certificates: []tls.Certificate{cert}, InsecureSkipVerify: true}
+
+	conn, err := tls.Dial("tcp", client.address+":"+strconv.Itoa(int(client.port)), &config)
 	if err != nil {
 		log.Println("Failed to connect with error:", err.Error())
 		return false
@@ -37,4 +45,8 @@ func (client *TCPClient) SendCommand(command []byte) bool {
 		return true
 	}
 	return false
+}
+
+func (client *TCPClient) Shutdown() {
+	client.conn.Close()
 }

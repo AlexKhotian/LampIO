@@ -9,7 +9,7 @@ import (
 )
 
 func StartServer() {
-	server := Networking.CreateTCPServerOnPort(7778)
+	server := Networking.CreateTCPServerOnPort(7777)
 
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
