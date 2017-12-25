@@ -12,7 +12,7 @@ type CommandType int32
 const (
 	NewClientCommandRequestType CommandType = 0
 	NewModuleCommandRequestType CommandType = 1
-	NewModuleRequestDataType    CommandType = 2
+	NewModuleDataRequestType    CommandType = 2
 )
 
 type Command struct {
