@@ -3,6 +3,7 @@ package Monitoring
 import (
 	"LampIO/Helper"
 	"LampIO/Shared/Networking"
+
 	"encoding/json"
 	"errors"
 )
@@ -34,7 +35,7 @@ func (instance *newModuleHandshake) CreateAndSendNewModuleCommand(
 		return errors.New("Failed to create new module cmd, empty module name")
 	}
 
-	newModuleCmd := &Networking.NewModuleCommand{
+	newModuleCmd := &Networking.NewModuleCommandRequest{
 		Name: *moduleName, UUID: uuid, Units: *units}
 
 	marshalledData, err := json.Marshal(newModuleCmd)
@@ -43,7 +44,7 @@ func (instance *newModuleHandshake) CreateAndSendNewModuleCommand(
 	}
 
 	cmd := &Networking.Command{
-		CommandType:    Networking.NewModuleCommandType,
+		CommandType:    Networking.NewModuleCommandRequestType,
 		MarshalledData: marshalledData}
 
 	instance.sendCommand(cmd)
