@@ -14,10 +14,12 @@ type TCPClient struct {
 	conn    net.Conn
 }
 
+// CreateTCPClient - factory for TCPClient
 func CreateTCPClient(port int32, address string) *TCPClient {
 	return &TCPClient{port, address, nil}
 }
 
+// Run runs tcp client
 func (client *TCPClient) Run() bool {
 	cert, err := tls.LoadX509KeyPair("../certs/client.pem", "../certs/client.key")
 	if err != nil {
@@ -35,6 +37,7 @@ func (client *TCPClient) Run() bool {
 	return true
 }
 
+// SendCommand sends command to server
 func (client *TCPClient) SendCommand(command []byte) bool {
 	if client.conn != nil {
 		_, err := client.conn.Write(command)
@@ -47,6 +50,7 @@ func (client *TCPClient) SendCommand(command []byte) bool {
 	return false
 }
 
+// Shutdown - cleanups and shutdowns client tcp
 func (client *TCPClient) Shutdown() {
 	client.conn.Close()
 }

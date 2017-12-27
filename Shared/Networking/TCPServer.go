@@ -1,10 +1,9 @@
 package Networking
 
 import (
-	"bufio"
 	"crypto/rand"
 	"crypto/tls"
-	"fmt"
+	"encoding/json"
 	"log"
 	"net"
 	"strconv"
@@ -15,6 +14,7 @@ type TCPServer struct {
 	port             int32
 	gracefulShutdown bool
 	listener         net.Listener
+	incomingCmd      chan Command
 }
 
 // CreateTCPServerOnPort creating a server on the given port
@@ -22,7 +22,13 @@ func CreateTCPServerOnPort(port int32) *TCPServer {
 	server := new(TCPServer)
 	server.port = port
 	server.gracefulShutdown = false
+	server.incomingCmd = make(chan Command)
 	return server
+}
+
+// GetCommandsChan returns channel for handling of incomming commands
+func (server *TCPServer) GetCommandsChan() chan Command {
+	return server.incomingCmd
 }
 
 // Run start a server and wait for incoming connection
@@ -63,9 +69,16 @@ func (server *TCPServer) initListnerWithTLS() bool {
 }
 
 func (server *TCPServer) handleConnection(conn *net.Conn) {
-	message, _ := bufio.NewReader(*conn).ReadString('\n')
-	// output message received
-	fmt.Print(string(message))
+	decoder := json.NewDecoder(*conn)
+
+	cmd := &Command{}
+
+	err := decoder.Decode(cmd)
+	if err != nil {
+		log.Println("Failed to decode incoming command")
+		return
+	}
+	server.incomingCmd <- *cmd
 }
 
 // Shutdown server and clean up resources
