@@ -1,10 +1,15 @@
 package Client
 
-import "LampIO/Shared/Networking"
+import (
+	"LampIO/Client/Monitoring"
+	"LampIO/Shared/Networking"
+)
 
 func StartClient() {
-	client := Networking.CreateTCPClient(7777, "127.0.0.1")
+	client := Networking.CreateTCPClient(7778, "127.0.0.1")
 	client.Run()
-	client.SendCommand([]byte("Test"))
+
+	newClientCommandHandshake := Monitoring.INewClientHandshakeFactory(client.SendCommand)
+	newClientCommandHandshake.CreateAndSendNewClientCommand("TestClient")
 	client.Shutdown()
 }

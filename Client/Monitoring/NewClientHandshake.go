@@ -8,21 +8,21 @@ import (
 )
 
 type INewClientHandshake interface {
-	CreateAndSendNewClientCommand(name *string) error
+	CreateAndSendNewClientCommand(name string) error
 }
 
 type newClientHandshake struct {
-	sendCommand func(command *Networking.Command)
+	sendCommand (func(command *Networking.Command) bool)
 }
 
-func INewClientHandshakeFactory(sendFunc func(command *Networking.Command)) INewClientHandshake {
+func INewClientHandshakeFactory(sendFunc func(command *Networking.Command) bool) INewClientHandshake {
 	instance := new(newClientHandshake)
 	instance.sendCommand = sendFunc
 	return instance
 }
 
-func (instance *newClientHandshake) CreateAndSendNewClientCommand(name *string) error {
-	if *name == "" {
+func (instance *newClientHandshake) CreateAndSendNewClientCommand(name string) error {
+	if name == "" {
 		return errors.New("Name of new client can not be empty")
 	}
 
@@ -32,7 +32,7 @@ func (instance *newClientHandshake) CreateAndSendNewClientCommand(name *string) 
 
 	newClientHandshakeCmd := &Networking.NewClientCommandRequest{
 		Version: *version,
-		Name:    *name}
+		Name:    name}
 
 	marshaledCmd, err := json.Marshal(newClientHandshakeCmd)
 	if err != nil {
@@ -42,7 +42,7 @@ func (instance *newClientHandshake) CreateAndSendNewClientCommand(name *string) 
 	cmd := &Networking.Command{
 		CommandType:   Networking.NewClientCommandRequestType,
 		MarshaledData: marshaledCmd}
-
+	// TODO: Handle result, react with corresponding error
 	instance.sendCommand(cmd)
 
 	return nil

@@ -33,16 +33,19 @@ func (server *TCPServer) GetCommandsChan() chan Command {
 
 // Run start a server and wait for incoming connection
 func (server *TCPServer) Run() bool {
+	log.Println("Spawn routine")
 	if !server.initListnerWithTLS() {
 		log.Println("Failed to init a listener")
 		return false
 	}
+	log.Println("Finished init")
 	for !server.gracefulShutdown {
 		conn, err := server.listener.Accept()
 		if err != nil {
 			log.Println("Failed to accept with error:", err.Error())
 			return false
 		}
+		log.Println("Got new connection")
 		go server.handleConnection(&conn)
 	}
 	return true
@@ -54,6 +57,8 @@ func (server *TCPServer) initListnerWithTLS() bool {
 		log.Println("Failed to load keys: ", err)
 		return false
 	}
+	log.Println("Loaded certs")
+
 	config := tls.Config{Certificates: []tls.Certificate{cert}}
 	config.Rand = rand.Reader
 
@@ -65,6 +70,7 @@ func (server *TCPServer) initListnerWithTLS() bool {
 		log.Println("Failed to listen with error:", err.Error())
 		return false
 	}
+	log.Println("Created TLS listener")
 	return true
 }
 
@@ -74,6 +80,7 @@ func (server *TCPServer) handleConnection(conn *net.Conn) {
 	cmd := &Command{}
 
 	err := decoder.Decode(cmd)
+	log.Println("Received new command")
 	if err != nil {
 		log.Println("Failed to decode incoming command")
 		return

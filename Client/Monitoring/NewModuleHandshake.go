@@ -44,8 +44,8 @@ func (instance *newModuleHandshake) CreateAndSendNewModuleCommand(
 	}
 
 	cmd := &Networking.Command{
-		CommandType:    Networking.NewModuleCommandRequestType,
-		MarshalledData: marshalledData}
+		CommandType:   Networking.NewModuleCommandRequestType,
+		MarshaledData: marshalledData}
 
 	instance.sendCommand(cmd)
 

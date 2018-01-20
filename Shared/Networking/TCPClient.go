@@ -2,6 +2,7 @@ package Networking
 
 import (
 	"crypto/tls"
+	"encoding/json"
 	"log"
 	"net"
 	"strconv"
@@ -38,9 +39,14 @@ func (client *TCPClient) Run() bool {
 }
 
 // SendCommand sends command to server
-func (client *TCPClient) SendCommand(command []byte) bool {
+func (client *TCPClient) SendCommand(cmd *Command) bool {
 	if client.conn != nil {
-		_, err := client.conn.Write(command)
+		encodedData, err := json.Marshal(cmd)
+		if err != nil {
+			log.Println("Failed to encode command with error:", err.Error())
+		}
+
+		_, err = client.conn.Write(encodedData)
 		if err != nil {
 			log.Println("Failed to send command with error:", err.Error())
 			return false
@@ -52,5 +58,7 @@ func (client *TCPClient) SendCommand(command []byte) bool {
 
 // Shutdown - cleanups and shutdowns client tcp
 func (client *TCPClient) Shutdown() {
-	client.conn.Close()
+	if client.conn != nil {
+		client.conn.Close()
+	}
 }

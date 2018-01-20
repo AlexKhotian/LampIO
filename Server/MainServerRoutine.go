@@ -2,6 +2,7 @@ package Server
 
 import (
 	"LampIO/Shared/Networking"
+	"log"
 
 	"os"
 	"os/signal"
@@ -11,10 +12,11 @@ import (
 // StartServer spawns new server
 // main go routine on server side
 func StartServer() {
-	server := Networking.CreateTCPServerOnPort(7777)
+	server := Networking.CreateTCPServerOnPort(7778)
+	log.Println("StartServer: Starting server")
 
 	dispatcher := ICommandsDispatcherServerFactory()
-	dispatcher.RegisterForCommands(server.GetCommandsChan())
+	go dispatcher.RegisterForCommands(server.GetCommandsChan())
 
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
