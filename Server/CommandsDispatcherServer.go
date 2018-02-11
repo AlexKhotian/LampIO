@@ -15,20 +15,30 @@ type ICommandsDispatcherServer interface {
 
 type commandsDispatcherServer struct {
 	incomingCommandSignal chan Networking.Command
+	endSignal             chan bool
 }
 
 // ICommandsDispatcherServerFactory creates new factory
 func ICommandsDispatcherServerFactory() ICommandsDispatcherServer {
-	return &commandsDispatcherServer{}
+	this := new(commandsDispatcherServer)
+	this.endSignal = make(chan bool)
+	return this
 }
 
 func (instance *commandsDispatcherServer) RegisterForCommands(incomingCommandSignal chan Networking.Command) {
-
 	instance.incomingCommandSignal = incomingCommandSignal
-	select {
-	case cmd := <-instance.incomingCommandSignal:
-		{
-			instance.HandleCommand(&cmd)
+	for {
+		select {
+		case cmd := <-instance.incomingCommandSignal:
+			{
+				instance.HandleCommand(&cmd)
+				break
+			}
+		case <-instance.endSignal:
+			{
+				log.Println("Server Dispatcher Terminated")
+				return
+			}
 		}
 	}
 }
@@ -47,5 +57,7 @@ func (instance *commandsDispatcherServer) HandleCommand(cmd *Networking.Command)
 }
 
 func (instance *commandsDispatcherServer) Shutdown() {
+	instance.endSignal <- true
 	close(instance.incomingCommandSignal)
+	close(instance.endSignal)
 }

@@ -7,6 +7,7 @@ import (
 	"log"
 	"net"
 	"strconv"
+	"time"
 )
 
 // TCPServer creates and handles listener, later forwards data
@@ -22,7 +23,7 @@ func CreateTCPServerOnPort(port int32) *TCPServer {
 	server := new(TCPServer)
 	server.port = port
 	server.gracefulShutdown = false
-	server.incomingCmd = make(chan Command)
+	server.incomingCmd = make(chan Command, 256)
 	return server
 }
 
@@ -76,16 +77,28 @@ func (server *TCPServer) initListnerWithTLS() bool {
 
 func (server *TCPServer) handleConnection(conn *net.Conn) {
 	decoder := json.NewDecoder(*conn)
-
-	cmd := &Command{}
-
-	err := decoder.Decode(cmd)
-	log.Println("Received new command")
-	if err != nil {
-		log.Println("Failed to decode incoming command")
-		return
+	(*conn).SetReadDeadline(time.Now().Add(5 * time.Second))
+	for {
+		// TODO: Improve wait
+		// Check if we have something really to read
+		cmd := &Command{}
+		err := decoder.Decode(cmd)
+		if err != nil {
+			if neterr, ok := err.(net.Error); ok && neterr.Timeout() {
+				log.Println("TCP timeout:", err.Error())
+				return
+			}
+			//log.Println("Received error decoding message:", err.Error())
+			continue
+		}
+		log.Println("Received new command")
+		if err != nil {
+			log.Println("Failed to decode incoming command", err.Error())
+			continue
+		}
+		server.incomingCmd <- *cmd
+		log.Println("Command Passed")
 	}
-	server.incomingCmd <- *cmd
 }
 
 // Shutdown server and clean up resources
