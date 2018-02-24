@@ -53,7 +53,7 @@ func (server *TCPServer) Run() bool {
 }
 
 func (server *TCPServer) initListnerWithTLS() bool {
-	cert, err := tls.LoadX509KeyPair("../certs/server.pem", "../certs/server.key")
+	cert, err := tls.LoadX509KeyPair("certs/server.pem", "certs/server.key")
 	if err != nil {
 		log.Println("Failed to load keys: ", err)
 		return false
@@ -88,7 +88,6 @@ func (server *TCPServer) handleConnection(conn *net.Conn) {
 				log.Println("TCP timeout:", err.Error())
 				return
 			}
-			//log.Println("Received error decoding message:", err.Error())
 			continue
 		}
 		log.Println("Received new command")

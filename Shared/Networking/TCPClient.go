@@ -22,7 +22,7 @@ func CreateTCPClient(port int32, address string) *TCPClient {
 
 // Run runs tcp client
 func (client *TCPClient) Run() bool {
-	cert, err := tls.LoadX509KeyPair("../certs/client.pem", "../certs/client.key")
+	cert, err := tls.LoadX509KeyPair("certs/client.pem", "certs/client.key")
 	if err != nil {
 		log.Println("Failed to load certs", err)
 		return false

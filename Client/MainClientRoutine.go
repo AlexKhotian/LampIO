@@ -6,6 +6,7 @@ import (
 	"LampIO/Shared/Networking"
 )
 
+// StartClient spawns new monitoring client
 func StartClient() {
 	client := Networking.CreateTCPClient(7778, "127.0.0.1")
 	client.Run()
