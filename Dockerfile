@@ -8,4 +8,4 @@ RUN go build -o LampIO CLI/Main.go
 EXPOSE 7778
 
 ARG TYPE="server"
-RUN ./LampIO --$TYPE
+ENTRYPOINT ./LampIO --${TYPE}
